@@ -1,5 +1,5 @@
-# Building a JWT Authentication System with FastAPI
-When developing modern APIs, security is one of the most crucial aspects. JSON Web Tokens (JWT) are a lightweight and widely adopted way of handling authentication and authorization in distributed applications. In this article, we’ll walk through the structure of a **FastAPI project** that implements JWT authentication.
+# JWT Auth System with FastAPI
+JWT Auth to an API with FastAPI.
 
 ## Project Overview
 Our project is organized into a clean and modular folder structure:
