@@ -1,92 +1,107 @@
-# JWT FastAPI Application
-A modern backend API built with **FastAPI**, implementing user management with JWT authentication, asynchronous PostgreSQL access using SQLAlchemy, and Docker-based deployment.
+# Building a JWT Authentication System with FastAPI
+When developing modern APIs, security is one of the most crucial aspects. JSON Web Tokens (JWT) are a lightweight and widely adopted way of handling authentication and authorization in distributed applications. In this article, we’ll walk through the structure of a **FastAPI project** that implements JWT authentication.
 
-## Features
-- User registration with unique username and email validation
-- Secure password hashing and verification
-- JWT authentication with access token expiration and refresh token endpoint
-- User CRUD operations with proper permission control
-- Pagination support on user listing
-- Async database access with SQLAlchemy and PostgreSQL
-- Database migrations managed by Alembic
-- Docker and Docker Compose support for easy deployment
-
-## Technology Stack
-- Python 3.12
-- FastAPI
-- SQLAlchemy (async)
-- PostgreSQL
-- Alembic
-- Pydantic & pydantic-settings
-- PyJWT
-- pwdlib
-- Poetry for dependency management
-- Docker & Docker Compose
-
-## Project Structure
+## Project Overview
+Our project is organized into a clean and modular folder structure:
 ```bash
-.
-├── api/
-│   ├── database.py
-│   ├── models.py
-│   ├── routers/
-│   │   ├── auth.py
-│   │   └── users.py
-│   ├── schemas.py
-│   ├── security.py
-│   ├── app.py                   # FastAPI app entrypoint
-│   └── settings.py
-├── alembic/                   # Alembic migrations
-├── entrypoint.sh              # Entrypoint script for Docker container
-├── Dockerfile
-├── docker-compose.yml
-├── poetry.lock
-├── pyproject.toml
-├── README.md
-└── .env                      # Environment variables (not committed)
+jwt-fast-api/
+│── .venv/              # Virtual environment
+│── app/                # Main application folder
+│   ├── api/            # API routes
+│   ├── core/           # Core configurations (settings, security, etc.)
+│   ├── db/             # Database connection and session management
+│   ├── models/         # ORM models
+│   ├── schemas/        # Pydantic schemas
+│   ├── services/       # Business logic and helpers
+│   └── main.py         # FastAPI entry point
+│── docs/               # Documentation
+│── .env                # Environment variables
+│── pyproject.toml      # Project dependencies & configuration
+│── README.md           # Project description
+│── uv.lock             # Dependency lock file
 ```
 
-## How to Run
+This separation of concerns makes the project scalable, maintainable, and easy to extend.
 
-### Requirements
-- Docker and Docker Compose installed
+## Core Components
+### 1. **Database Layer (`app/db/`)**
+Here we manage the database session.
 
-### Steps
-1. **Clone the repository**
+### 2. **Models (`app/models/`)**
+ORM models define our database tables, such as `User`. Each model maps directly to a database table.
+
+### 3. **Schemas (`app/schemas/`)**
+Schemas are Pydantic models used to validate request and response payloads. For example:
+* `UserRegisterRequest`
+* `UserLoginRequest`
+* `TokenResponse`
+
+### 4. **Core Configuration (`app/core/`)**
+This includes:
+* **`config.py`**: Reading environment variables with `pydantic-settings`.
+* **`security.py`**: Hashing passwords and generating/verifying JWT tokens.
+
+### 5. **Services (`app/services/`)**
+Business logic goes here:
+* Registering users
+* Authenticating credentials
+* Issuing JWTs
+
+### 6. **API (`app/api/`)**
+Routes are grouped logically:
+* `/auth/register`
+* `/auth/login`
+* `/users/me`
+
+Each route uses schemas and services, keeping controllers lean.
+
+## JWT Authentication Flow
+1. **User Registration**
+   * A new user signs up.
+   * Password is hashed using `bcrypt`.
+   * User is stored in the database.
+
+2. **User Login**
+   * User submits credentials.
+   * Password is verified.
+   * A JWT is issued with user ID and expiration.
+
+3. **Protected Routes**
+   * The client sends the JWT in the `Authorization` header (`Bearer <token>`).
+   * FastAPI dependency extracts and validates the token.
+   * If valid, the request proceeds; otherwise, it’s rejected.
+
+## Running the Project
+1. Clone the repository:
 ```bash
 git clone https://github.com/lorenzouriel/fast-api-auth.git
 cd fast-api-auth
 ```
 
-2. **Create a `.env` file**
-Create a `.env` file in the root folder with the following content:
-```env
-DATABASE_URL=postgresql+asyncpg://app_user:app_password@api_database:5432/app_db
-SECRET_KEY=your_secret_key_here
-ALGORITHM=HS256
-ACCESS_TOKEN_EXPIRE_MINUTES=30
-```
-
-3. **Build and run with Docker Compose**
+2. Install dependencies:
 ```bash
-docker-compose up --build
+uv sync
+
+# or
+
+uv add fastapi uvicorn sqlalchemy pyodbc python-dotenv passlib[bcrypt] python-jose
 ```
 
-This command will:
-* Build the API Docker image
-* Start the PostgreSQL container with persistent volume
-* Run database migrations automatically via `entrypoint.sh`
-* Launch the FastAPI application accessible on [http://localhost:8000](http://localhost:8000)
+3. Start the server:
+```bash
+uvicorn app.main:app --reload
+```
 
-4. **Access the API documentation**
-Navigate to [http://localhost:8000/docs](http://localhost:8000/docs) for the interactive Swagger UI.
+4. Access Swagger docs at:
+```
+http://127.0.0.1:8000/docs
+```
 
-## Usage 
-* **Register a user:** `POST /users/`
-* **Authenticate and get JWT token:** `POST /auth/token`
-* **Refresh JWT token:** `POST /auth/refresh_token`
-* **Get paginated users list:** `GET /users/?offset=0&limit=10`
-* **Update your user:** `PUT /users/{user_id}`
-* **Delete your user:** `DELETE /users/{user_id}`
+## Conclusion
+This project demonstrates how to implement JWT-based authentication in FastAPI with a clean, modular structure. By separating concerns into distinct layers (schemas, models, services, and routes), the system is both scalable and easy to maintain.
 
-Use the returned JWT token as `Authorization: Bearer <token>` in protected endpoints.
+Future improvements could include:
+
+* Refresh tokens
+* Role-based access control
+* Integration with external identity providers
