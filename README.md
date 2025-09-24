@@ -84,15 +84,27 @@ uv sync
 
 # or
 
-uv add fastapi uvicorn sqlalchemy pyodbc python-dotenv passlib[bcrypt] python-jose
+uv add fastapi uvicorn sqlalchemy pyodbc python-dotenv passlib[bcrypt] python-jose pydantic_settings pydantic[email]
 ```
 
-3. Start the server:
+3. Update the `.env`:
+```
+SECRET_KEY=
+ALGORITHM=
+SQL_SERVER_USER=
+SQL_SERVER_PASSWORD=
+SQL_SERVER_HOST=
+SQL_SERVER_PORT=
+SQL_SERVER_DB=f
+SQL_SERVER_DRIVER=ODBC Driver 17 for SQL Server
+```
+
+4. Start the server:
 ```bash
 uvicorn app.main:app --reload
 ```
 
-4. Access Swagger docs at:
+5. Access Swagger docs at:
 ```
 http://127.0.0.1:8000/docs
 ```
@@ -101,7 +113,8 @@ http://127.0.0.1:8000/docs
 This project demonstrates how to implement JWT-based authentication in FastAPI with a clean, modular structure. By separating concerns into distinct layers (schemas, models, services, and routes), the system is both scalable and easy to maintain.
 
 Future improvements could include:
-
 * Refresh tokens
 * Role-based access control
 * Integration with external identity providers
+
+There is a medium article related to this project too, just click here to access.
