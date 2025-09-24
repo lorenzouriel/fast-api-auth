@@ -117,4 +117,4 @@ Future improvements could include:
 * Role-based access control
 * Integration with external identity providers
 
-There is a medium article related to this project too, just click here to access.
+There is a medium article related to this project too, [just click here to access.](https://medium.com/@lorenzouriel/auth-api-with-jwt-and-fastapi-f86d83349e94)
